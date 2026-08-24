@@ -1,8 +1,3 @@
-এখানে সবকটি Modules (Module 01 থেকে Module 28 পর্যন্ত) একদম বিস্তারিত আকারে একটি সিঙ্গেল ফাইল ফরম্যাটে দেওয়া হলো। আপনি সরাসরি কপি করে আপনার `notes.md` ফাইলে পেস্ট করে নিতে পারেন।
-
----
-
-```markdown
 # 📓 Complete PicoCTF Beginner Path Writeups & Notes (28 Modules)
 
 This document contains full step-by-step writeups, multiple solution methods, terminal commands, pitfalls, and a summary table for all 28 challenges in the **Beginner's Guide to the Challenge Library** on picoCTF.
@@ -23,6 +18,7 @@ This document contains full step-by-step writeups, multiple solution methods, te
 ## 🛠️ Module-by-Module Detailed Breakdown
 
 ### Module 01: Obedient Cat
+
 * **Category:** General Skills
 * **Problem:** Retrieve the flag from a plain downloaded file named `flag`.
 * **Method 1 (CLI):** `cat flag`
@@ -32,6 +28,7 @@ This document contains full step-by-step writeups, multiple solution methods, te
 ---
 
 ### Module 02: Python Wrangling
+
 * **Category:** Scripting / CLI
 * **Problem:** Run a provided Python script `ende.py` to decrypt `flag.txt.en` using a key file `pw.txt`.
 * **Method 1 (CLI Execution):** `python3 ende.py -d flag.txt.en` (enter contents of `pw.txt` when prompted).
@@ -41,6 +38,7 @@ This document contains full step-by-step writeups, multiple solution methods, te
 ---
 
 ### Module 03: Wave a Flag
+
 * **Category:** General Skills / Binaries
 * **Problem:** Executable binary does not give the flag when run normally.
 * **Method 1 (Help Flag):** `./warm -h` or `./warm --help`
@@ -50,13 +48,15 @@ This document contains full step-by-step writeups, multiple solution methods, te
 ---
 
 ### Module 04: Nice Netcat...
+
 * **Category:** Data Representation / Networking
 * **Problem:** Netcat output provides a sequence of decimal ASCII numbers (`112 105 99 111...`).
-* **Method 1 (Python Pipe):** 
-  ```bash
-  nc mercury.picoctf.net 49932 | python3 -c 'import sys; print("".join([chr(int(x)) for x in sys.stdin.read().split()]))'
+* **Method 1 (Python Pipe):**
+```bash
+nc mercury.picoctf.net 49932 | python3 -c 'import sys; print("".join([chr(int(x)) for x in sys.stdin.read().split()]))'
 
 ```
+
 
 * **Method 2 (AWK One-Liner):** `nc mercury.picoctf.net 49932 | awk '{for(i=1;i<=NF;i++) printf "%c", $i; print ""}'`
 * **Gotcha:** Decimals must be converted using character casting (`chr()`), not Hex/Base64 routines.
@@ -450,6 +450,4 @@ python3 -c 'print("A"*100)' | nc saturn.picoctf.net 51234
 | 27 | Vault-Door Training | Decompiled Java source inspection | Reverse Engineering |
 | 28 | Buffer Overflow 0 | Stack buffer overflow payload (`"A"*100`) | Binary Exploitation |
 
-```
-
-```
+---
