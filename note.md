@@ -1,286 +1,454 @@
-Here is the ultimate, master-level **`notes.md`** file for your GitHub repository.
-
-Instead of just listing challenge names, this note is organized by **the exact problem types** you face in picoCTF. Every section includes **Method 1 (Standard Command Line)**, **Method 2 (Alternative / GUI / Automation)**, and **Pro-Tip / Pitfall Warnings** so you know every way to crack a problem.
+এখানে সবকটি Modules (Module 01 থেকে Module 28 পর্যন্ত) একদম বিস্তারিত আকারে একটি সিঙ্গেল ফাইল ফরম্যাটে দেওয়া হলো। আপনি সরাসরি কপি করে আপনার `notes.md` ফাইলে পেস্ট করে নিতে পারেন।
 
 ---
 
 ```markdown
-# 🚩 Master CTF Notes: PicoCTF Beginner Path (28 Modules)
+# 📓 Complete PicoCTF Beginner Path Writeups & Notes (28 Modules)
 
-> **Repository:** picoctf-beginners-guide  
-> **Author:** [Your Name]  
-> **Target:** PicoCTF Beginner's Guide to the Challenge Library (28 Solved Modules)
+This document contains full step-by-step writeups, multiple solution methods, terminal commands, pitfalls, and a summary table for all 28 challenges in the **Beginner's Guide to the Challenge Library** on picoCTF.
 
 ---
 
-## 🛑 Essential Mistakes & Survival Rules
+## 🛑 Global Pitfalls & Common Mistakes Across All Modules
 
-1. **Netcat Syntax:** Always run `nc <host> <port>` with a **space**. Using `-p` or `:` will throw errors.
-2. **Hidden Files:** Standard `ls` hides dotfiles. Always use `ls -la` to catch `.flag.txt`.
-3. **Encoding vs Encryption:** Base64, Hex, and URL encoding are *data representations*, not encryption. Never waste time using hashcat/john on Base64.
-4. **Binary Strings:** Never use `cat` on compiled C/C++ binaries—it messes up terminal output. Always pipe through `strings`.
-5. **Multi-File Web Flags:** When inspecting source code, check `HTML` (`Ctrl+U`), then follow links to `CSS` (`.css`) and JavaScript (`.js`) files for split flags.
-6. **Execution Rights:** If `./binary` fails with `Permission denied`, run `chmod +x binary` first.
-
----
-
-## 📂 Category 1: Linux CLI & Directory Traversal
-
-### 🛠️ Challenges Covered: *Obedient Cat*, *Wave a Flag*, *Tab, Tab, Attack*, *Magikarp Ground Mission*, *First Grep*
-
-#### Problem Scenario
-Navigating deep nested directory structures, unzipping archives, finding hidden flags in thousands of lines of text.
-
-#### 🔹 Method 1: Terminal & Command Line (Fastest)
-```bash
-# 1. Tab Completion for deep paths (e.g. Addadshashanammu.zip)
-unzip Add[TAB].zip
-cd Add[TAB]/dir1/dir2/
-
-# 2. Reveal all files (including hidden dotfiles)
-ls -la
-
-# 3. Search recursively across thousands of files/folders instantly
-grep -rn "picoCTF" .
-
-# 4. Filter exact text inside a single large file
-grep -i "picoCTF" flag.txt
-
-```
-
-#### 🔹 Method 2: One-Liner / Automation Search
-
-If you don't want to navigate subfolders manually:
-
-```bash
-# Find and cat any file containing 'picoCTF' in subdirectories
-find . -type f -exec grep -H "picoCTF" {} +
-
-```
-
-#### ⚠️ Common Pitfalls
-
-* Forgetting `-r` in `grep` means it won't check subdirectories.
-* Forgetting `-n` won't tell you *which line number* matched.
+1. **Netcat Syntax:** Always run `nc <host> <port>` with a **space**. Using `-p` or `:` will cause connection failures.
+2. **Hidden Dotfiles:** Standard `ls` ignores files starting with a dot (e.g., `.flag.txt`). Always use `ls -la`.
+3. **Encoding vs. Encryption:** Base64/Hex are data formats, not encryption. Never attempt dictionary/hashcat attacks on encoded text; decode it directly.
+4. **Catting Executables:** Never run `cat` on binary executables—it pollutes terminal state. Always extract strings using `strings` or `xxd`.
+5. **Multi-Asset Web Code:** Client-side flags are often split across HTML, CSS, and JS files. Inspect linked external resources in `<head>` and `<script>` tags.
+6. **Execution Permissions:** When receiving `Permission denied` on `./binary`, run `chmod +x binary` first.
 
 ---
 
-## 🔬 Category 2: Binary Inspection & Strings
+## 🛠️ Module-by-Module Detailed Breakdown
 
-### 🛠️ Challenges Covered: *Static Ain't Always Noise*, *Strings It*
-
-#### Problem Scenario
-
-The flag is embedded inside a compiled binary file (C, C++, or Go executable). Opening it directly shows unreadable binary garbage.
-
-#### 🔹 Method 1: The `strings` Pipeline
-
-```bash
-# Extract all printable ASCII characters and filter for flag
-strings static | grep -i "picoCTF"
-
-```
-
-#### 🔹 Method 2: Hexdump & Python Parsing
-
-If `strings` is not available or you want raw byte offsets:
-
-```bash
-# Read file in Hex format (Linux)
-xxd static | grep -C 2 "pico"
-
-# Alternative via Python
-python3 -c 'import re; print(re.findall(rb"picoCTF\{.*?\}", open("static","rb").read()))'
-
-```
+### Module 01: Obedient Cat
+* **Category:** General Skills
+* **Problem:** Retrieve the flag from a plain downloaded file named `flag`.
+* **Method 1 (CLI):** `cat flag`
+* **Method 2 (Python):** `python3 -c 'print(open("flag").read())'`
+* **Gotcha:** Ensure you are in the directory where the file was downloaded using `cd`.
 
 ---
 
-## 🔢 Category 3: Base Conversions & Encoding
+### Module 02: Python Wrangling
+* **Category:** Scripting / CLI
+* **Problem:** Run a provided Python script `ende.py` to decrypt `flag.txt.en` using a key file `pw.txt`.
+* **Method 1 (CLI Execution):** `python3 ende.py -d flag.txt.en` (enter contents of `pw.txt` when prompted).
+* **Method 2 (One-Liner):** `python3 ende.py -d flag.txt.en < pw.txt`
+* **Gotcha:** Do not run `python3 flag.txt.en`; run the script `ende.py` with arguments.
 
-### 🛠️ Challenges Covered: *Let's Warm Up*, *Warmed Up*, *2Warm*, *Bases*, *Nice Netcat...*
+---
 
-#### Problem Scenario
+### Module 03: Wave a Flag
+* **Category:** General Skills / Binaries
+* **Problem:** Executable binary does not give the flag when run normally.
+* **Method 1 (Help Flag):** `./warm -h` or `./warm --help`
+* **Method 2 (Strings Extraction):** `strings warm | grep "picoCTF"`
+* **Gotcha:** Run `chmod +x warm` if you get a `Permission denied` error.
 
-Data is represented in Base64, Hexadecimal (`0x70`), Decimal ASCII codes (`112 105 99 111`), or Binary (`0b1110000`).
+---
 
-#### 🔹 Method 1: Native Linux CLI Tools
-
-```bash
-# Decode Base64 string
-echo "cGljb0NURnt0ZXN0fQ==" | base64 -d
-
-# Convert Hex to ASCII (e.g., 0x70 -> p)
-printf "\x70\x69\x63\x6f\x43\x54\x46\n"
-
-# Convert ASCII Decimals from Netcat into readable characters
-echo "112 105 99 111" | awk '{for(i=1;i<=NF;i++) printf "%c", $i; print ""}'
+### Module 04: Nice Netcat...
+* **Category:** Data Representation / Networking
+* **Problem:** Netcat output provides a sequence of decimal ASCII numbers (`112 105 99 111...`).
+* **Method 1 (Python Pipe):** 
+  ```bash
+  nc mercury.picoctf.net 49932 | python3 -c 'import sys; print("".join([chr(int(x)) for x in sys.stdin.read().split()]))'
 
 ```
 
-#### 🔹 Method 2: Python One-Liners (Universal)
+* **Method 2 (AWK One-Liner):** `nc mercury.picoctf.net 49932 | awk '{for(i=1;i<=NF;i++) printf "%c", $i; print ""}'`
+* **Gotcha:** Decimals must be converted using character casting (`chr()`), not Hex/Base64 routines.
 
+---
+
+### Module 05: Static Ain't Always Noise
+
+* **Category:** Binary Inspection
+* **Problem:** Extract flag from a compiled binary (`static`) using a provided shell script or tools.
+* **Method 1 (Strings + Grep):** `strings static | grep "picoCTF"`
+* **Method 2 (Python Regex):** `python3 -c 'import re; print(re.findall(rb"picoCTF\{.*?\}", open("static","rb").read()))'`
+* **Gotcha:** Binaries contain thousands of machine code instructions; piping through `grep` is essential.
+
+---
+
+### Module 06: Tab, Tab, Attack
+
+* **Category:** Linux CLI Navigation
+* **Problem:** Deeply nested directories inside a target zip file.
+* **Method 1 (Tab Auto-Complete):**
+```bash
+unzip Addadshashanammu.zip
+cd Addadshashanammu/files/feature/retry/... # Use TAB key continuously
+./fang-of-haynekhtnamet
+
+```
+
+
+* **Method 2 (Find & Execute):** `find . -type f -name "*fang*" -exec {} \;`
+* **Gotcha:** Manually typing long random string directory names causes syntax typos.
+
+---
+
+### Module 07: Magikarp Ground Mission
+
+* **Category:** Linux Navigation / SSH
+* **Problem:** Flag is split across three text files in different system directories (`/`, `~`, root).
+* **Method 1 (Directory Traversal):**
+1. `cat 1of3-flag.txt` -> Read part 1.
+2. `cd ~` -> `cat 2of3-flag.txt` -> Read part 2.
+3. `cd /` -> `cat 3of3-flag.txt` -> Read part 3.
+
+
+* **Method 2 (Find Command):** `find / -name "*of3-flag.txt" 2>/dev/null -exec cat {} +`
+* **Gotcha:** Pay attention to instructions printed in `instructions-to-2of3.txt` for path locations.
+
+---
+
+### Module 08: Let's Warm Up
+
+* **Category:** Cryptography / Base Conversions
+* **Problem:** Convert Hexadecimal value `70` to ASCII character.
+* **Method 1 (Printf):** `printf "\x70\n"`
+* **Method 2 (Python):** `python3 -c 'print(chr(0x70))'`
+* **Gotcha:** Flag format requires wrapping output in `picoCTF{p}`.
+
+---
+
+### Module 09: Warmed Up
+
+* **Category:** Base Conversions
+* **Problem:** Convert Hexadecimal `0x3D` to Decimal.
+* **Method 1 (Python):** `python3 -c 'print(int("0x3D", 16))'`
+* **Method 2 (Bash Shell):** `echo $((0x3D))`
+* **Gotcha:** Do not include the `0x` prefix in the numerical answer unless required.
+
+---
+
+### Module 10: 2Warm
+
+* **Category:** Base Conversions
+* **Problem:** Convert Decimal number `42` to Binary.
+* **Method 1 (Python):** `python3 -c 'print(bin(42)[2:])'`
+* **Method 2 (BC Tool):** `echo "obase=2; 42" | bc`
+* **Gotcha:** Omit the `0b` prefix when submitting the binary string (`101010`).
+
+---
+
+### Module 11: What's a Netcat?
+
+* **Category:** Networking
+* **Problem:** Connect to a remote socket service to receive data.
+* **Method 1 (Netcat):** `nc jupiter.challenges.picoctf.org 25104`
+* **Method 2 (Python Socket):**
 ```python
-# Base64 Decode
-python3 -c "import base64; print(base64.b64decode('cGljb0NURnt0ZXN0fQ==').decode())"
-
-# Hex to ASCII
-python3 -c "print(bytes.fromhex('7069636f').decode('utf-8'))"
-
-# Binary / Decimal to ASCII
-python3 -c "print(''.join([chr(int(x)) for x in '112 105 99 111'.split()]))"
+import socket
+s = socket.create_connection(("jupiter.challenges.picoctf.org", 25104))
+print(s.recv(1024).decode())
 
 ```
 
-#### 🔹 Method 3: Web-Based GUI (CyberChef)
 
-* Drag **From Base64** or **From Hex** into the CyberChef recipe box.
-* Use the **Magic** operation if you don't know the encoding type.
+* **Gotcha:** Do not pass protocol identifiers like `http://` or `-p` flags into `nc`.
 
 ---
 
-## 🐍 Category 4: Python Scripting & Password Cracking
+### Module 12: Strings It
 
-### 🛠️ Challenges Covered: *Python Wrangling*, *Codebook*, *convertme.py*, *fixme1/2.py*, *Glitch Cat*, *PW Crack 1 to 5*
+* **Category:** Binary Inspection
+* **Problem:** Find the flag hidden inside an uncompiled text binary dump with over 50,000 lines.
+* **Method 1 (Pipeline):** `strings strings | grep "picoCTF"`
+* **Method 2 (Regex Matching):** `grep -a -o "picoCTF{.*}" strings`
+* **Gotcha:** Simple `cat` will freeze terminal windows due to non-printable characters.
 
-#### Problem Scenario
+---
 
-Fixing broken syntax, passing arguments to scripts, reverse-engineering hash logic, and dictionary attacks against hardcoded checks.
+### Module 13: Bases
 
-#### 🔹 Method 1: CLI Python Execution & Arguments
+* **Category:** Cryptography / Data Encoding
+* **Problem:** Decode Base64 string `bDd0aGNvZGVfYmFzZTY0X2Zsb3c=`.
+* **Method 1 (CLI Base64):** `echo "bDd0aGNvZGVfYmFzZTY0X2Zsb3c=" | base64 -d`
+* **Method 2 (Python):** `python3 -c 'import base64; print(base64.b64decode("bDd0aGNvZGVfYmFzZTY0X2Zsb3c=").decode())'`
+* **Gotcha:** Ensure trailing `=` padding signs are retained when decoding.
 
+---
+
+### Module 14: First Grep
+
+* **Category:** General Skills / File Search
+* **Problem:** Locate the flag pattern inside a large text file `file`.
+* **Method 1 (Grep Search):** `grep "picoCTF" file`
+* **Method 2 (Python Regex):** `python3 -c 'import re; print(re.findall("picoCTF{.*?}", open("file").read()))'`
+* **Gotcha:** Use `-i` flag for case-insensitive matches if unsure of flag case.
+
+---
+
+### Module 15: Codebook
+
+* **Category:** Python Scripting
+* **Problem:** Run `codebook.py` which requires `codebook.txt` to be present in the same directory.
+* **Method 1 (CLI):** Ensure both files are in current working directory, run `python3 codebook.py`.
+* **Method 2 (Explicit Path Execution):** `python3 ./codebook.py`
+* **Gotcha:** Running script from another path without `codebook.txt` triggers `FileNotFoundError`.
+
+---
+
+### Module 16: convertme.py
+
+* **Category:** Interactive Scripting / Math
+* **Problem:** Python script presents a random decimal number to convert to binary before printing the flag.
+* **Method 1 (Interactive Execution):**
+1. Run `python3 convertme.py`.
+2. Compute binary conversion in another terminal via `python3 -c 'print(bin(<number>)[2:])'`.
+3. Input binary string into prompt.
+
+
+* **Method 2 (Automated Pipe):** `python3 -c 'import subprocess; ...'`
+* **Gotcha:** Incorrect answers force the script to terminate, requiring a restart.
+
+---
+
+### Module 17: fixme1.py
+
+* **Category:** Script Maintenance / Syntax
+* **Problem:** Script fails execution due to Python `IndentationError`.
+* **Method 1 (Text Editor Fix):** Open `fixme1.py` in nano/vim/VSCode and remove extra leading spaces before the print statement on the last line.
+* **Method 2 (Sed Auto-Fix):** `sed -i 's/^    print/print/g' fixme1.py && python3 fixme1.py`
+* **Gotcha:** Python 3 strictly enforces block indentation structure.
+
+---
+
+### Module 18: fixme2.py
+
+* **Category:** Script Maintenance / Syntax
+* **Problem:** Script throws `SyntaxError` due to assignment operator `=` used inside an `if` condition.
+* **Method 1 (Fix Comparison Operator):** Change `if flag = ""` to `if flag == ""` in line 22.
+* **Method 2 (CLI Fix):** `sed -i 's/if flag = "/if flag == "/g' fixme2.py && python3 fixme2.py`
+* **Gotcha:** A single `=` assigns values; boolean evaluation requires double equals `==`.
+
+---
+
+### Module 19: Glitch Cat
+
+* **Category:** Python Expression Evaluation
+* **Problem:** Connecting via `nc` returns a raw Python string concatenated with hex char codes (`'picoCTF{gl17ch_m3_n07_' + chr(0x62) + ...`).
+* **Method 1 (Python Eval):**
 ```bash
-# Run script with flag argument (e.g., Python Wrangling)
-python3 ende.py -d flag.txt.en
-
-# Run script alongside codebook in the same directory
-python3 codebook.py
+python3 -c 'print('picoCTF{gl17ch_m3_n07_' + chr(0x62) + chr(0x31) + chr(0x37) + chr(0x35) + '_91438419}'))'
 
 ```
 
-#### 🔹 Method 2: Source Code Inspection (PW Crack Series)
 
-1. Open `.py` file with an editor (`nano level1.py` or VS Code).
-2. Locate the verification block (e.g., `if user_pw == level_1_pw:`).
-3. Print or reverse the variable directly:
+* **Method 2 (Interactive REPL):** Launch `python3`, copy-paste the output expression directly.
+* **Gotcha:** Do not decode manually byte-by-byte; execute string concatenation directly in Python interpreter.
 
-```python
-# Extract hardcoded byte array (PW Crack 2/3 pattern)
-user_pw = "".join([chr(x) for x in [0x34, 0x31, 0x62, 0x33]])
-print("Decoded PW:", user_pw)
+---
+
+### Module 20: HashingJobApp
+
+* **Category:** Cryptography / Hashes
+* **Problem:** Netcat service presents MD5 hashing tasks with a strict response timeout.
+* **Method 1 (Terminal MD5 Pipeline):**
+```bash
+echo -n "string_given" | md5sum | awk '{print $1}'
 
 ```
 
-#### 🔹 Method 3: Automating Dictionary Crack (PW Crack 5)
 
+* **Method 2 (Python Automation Script):**
 ```python
-# Crack flag by looping over a dictionary list
-with open("dictionary.txt", "r") as f:
-    words = f.read().splitlines()
+import hashlib
+print(hashlib.md5(b"string_given").hexdigest())
 
-for word in words:
-    if hash_pw(word) == target_hash:
-        print(f"[+] Found Password: {word}")
+```
+
+
+* **Gotcha:** Always pass `-n` to `echo` to prevent adding trailing newlines (`\n`) into hash inputs.
+
+---
+
+### Module 21: PW Crack 1
+
+* **Category:** Reverse Engineering / Scripting
+* **Problem:** Password-protected script checks against a plain text hardcoded string.
+* **Method 1 (Source Inspection):** Open `level1.py` and inspect `user_pw` check:
+```python
+if user_pw == "8713":
+    print(flag)
+
+```
+
+
+* **Method 2 (Grep Direct):** `grep -oP '\b\d{4}\b' level1.py`
+* **Gotcha:** Running script requires executing `python3 level1.py` and pasting extracted password.
+
+---
+
+### Module 22: PW Crack 2
+
+* **Category:** Reverse Engineering / Scripting
+* **Problem:** Hardcoded password stored as Hex byte array representations inside source code.
+* **Method 1 (Python Decode):** Inspect `level2.py` for `chr(0x...)` values and evaluate:
+```python
+python3 -c 'print("".join([chr(x) for x in [0x34, 0x31, 0x32, 0x39]]))'
+
+```
+
+
+* **Method 2 (Source Print Edit):** Add `print("".join([chr(x) for x in [0x34, 0x31, 0x32, 0x39]]))` at the top of the file.
+* **Gotcha:** Hex numbers `0x34` represent ASCII character values (e.g., `4`), not literal integers.
+
+---
+
+### Module 23: PW Crack 3
+
+* **Category:** Reverse Engineering / Bruteforce
+* **Problem:** Correct password is one of 7 candidate strings listed in variable array `user_pw_list`.
+* **Method 1 (Script Loop Modification):** Modify `level3.py` to loop over `user_pw_list` array directly instead of calling `input()`:
+```python
+for pw in user_pw_list:
+    if level_3_pw_check(pw):
         break
 
 ```
 
+
+* **Method 2 (Python One-Liner Bruteforce):** Execute checking function against array items via terminal import.
+* **Gotcha:** Do not attempt manual entry for all candidates; modify checking function loop.
+
 ---
 
-## 🌐 Category 5: Web Exploitation (Source Code Inspection)
+### Module 24: PW Crack 4
 
-### 🛠️ Challenges Covered: *Inspect HTML / CSS / JS*
+* **Category:** Reverse Engineering / Hash Checking
+* **Problem:** MD5 hash check against an array of 100 possible candidate passwords.
+* **Method 1 (Automated Script Iteration):** Open `level4.py`, add loop over `pos_pw_list`:
+```python
+for password in pos_pw_list:
+    if hashlib.md5(password.encode()).hexdigest() == correct_pw_hash:
+        print("Found Password:", password)
+        level_4_pw_check(password)
 
-#### Problem Scenario
+```
 
-Flag is split across client-side assets to prevent complete discovery in main HTML.
 
-#### 🔹 Method 1: Browser DevTools Navigation
+* **Method 2 (External Script Import):** Import `level4` logic in separate runner script.
+* **Gotcha:** Ensure string encoding `.encode()` matches hashing expectations.
 
-1. **HTML:** Open website -> `Ctrl + U` (View Source) -> Look for `<!-- Part 1: picoCTF{... -->`.
-2. **CSS:** Look inside `<head>` for `<link rel="stylesheet" href="style.css">` -> Click link -> Check `/* Part 2: ... */`.
-3. **JavaScript:** Scroll to bottom -> Look for `<script src="index.js">` -> Click link -> Check `// Part 3: ...`.
+---
 
-#### 🔹 Method 2: Terminal Scraping via `curl`
+### Module 25: PW Crack 5
 
+* **Category:** Reverse Engineering / Dictionary Attacks
+* **Problem:** Correct password must be cracked from a provided external dictionary file `dictionary.txt`.
+* **Method 1 (File Parsing Loop):** Modify `level5.py`:
+```python
+with open("dictionary.txt", "r") as f:
+    for line in f:
+        pw = line.strip()
+        if hashlib.md5(pw.encode()).hexdigest() == correct_pw_hash:
+            print("Password is:", pw)
+            level_5_pw_check(pw)
+            break
+
+```
+
+
+* **Method 2 (Hashcat / John Alternative):** Hashcat dictionary attack using raw MD5 format.
+* **Gotcha:** Always strip whitespace/newlines (`.strip()`) from dictionary lines during comparison.
+
+---
+
+### Module 26: Inspect HTML / CSS / JS
+
+* **Category:** Web Exploitation
+* **Problem:** Flag split across client-side web files (`index.html`, `mycss.css`, `myjs.js`).
+* **Method 1 (DevTools File Inspection):**
+1. HTML Source: Open page -> `Ctrl + U` -> Read comment `<!-- Part 1: picoCTF{... -->`.
+2. CSS Resource: Access `http://<host>:<port>/mycss.css` -> Read `/* Part 2: ... */`.
+3. JS Resource: Access `http://<host>:<port>/myjs.js` -> Read `// Part 3: ...`.
+
+
+* **Method 2 (Terminal cURL Scraping):**
 ```bash
-# Fetch all 3 files using cURL from command line
-curl -s http://<host>:<port>/ | grep -i "picoCTF"
+curl -s http://<host>:<port>/
 curl -s http://<host>:<port>/mycss.css
 curl -s http://<host>:<port>/myjs.js
 
 ```
 
+
+* **Gotcha:** CSS and JS links are embedded in `<head>` and `<body>` tags; navigate to exact relative file paths.
+
 ---
 
-## ⚡ Category 6: Reverse Engineering & Binary Exploitation
+### Module 27: Vault-Door Training
 
-### 🛠️ Challenges Covered: *Vault-Door Training*, *Buffer Overflow 0*
-
-#### Problem Scenario
-
-Analyzing decompiled logic files or causing memory corruption in C programs to read flags.
-
-#### 🔹 Method 1: Java Decompilation (Vault Door)
-
-1. Open `.java` file in text editor.
-2. Locate the `checkPassword` method:
+* **Category:** Reverse Engineering / Java
+* **Problem:** Flag validation performed inside a Java class `VaultDoorTraining.java`.
+* **Method 1 (Source Decompilation Inspection):** Open `.java` source file and locate validation line:
 ```java
 public boolean checkPassword(String password) {
-    return password.equals("picoCTF{d3c0mp1l3d_...}");
+    return password.equals("picoCTF{w3lc0m3_t0_full_r3v3rs1ng_m4st3ry}");
 }
 
 ```
 
 
-3. Extract the hardcoded string directly.
+* **Method 2 (Javap Disassembler):** `javap -c VaultDoorTraining.class`
+* **Gotcha:** Java application checks exact string parity; copy entire string parameter directly.
 
-#### 🔹 Method 2: Buffer Overflow Trigger (BOF 0)
+---
 
-1. C applications using unsafe functions like `strcpy()` overflow when input exceeds allocated buffer size.
-2. Send a oversized string (e.g., 64+ bytes) to overwrite memory:
+### Module 28: Buffer Overflow 0
+
+* **Category:** Binary Exploitation / Memory Corruption
+* **Problem:** C program uses unsafe string copy function (`strcpy`) vulnerability, triggering SIGSEGV handler to output flag.
+* **Method 1 (Payload Overflow Pipe):**
 ```bash
-# Send 100 'A' characters into netcat instance
-python3 -c 'print("A"*100)' | nc <host> <port>
+python3 -c 'print("A"*100)' | nc saturn.picoctf.net 51234
 
 ```
 
 
+* **Method 2 (Interactive Long Input):** Pass an input string longer than allocated stack buffer array length (e.g., 64+ characters).
+* **Gotcha:** Input must exceed buffer allocation threshold to write into adjacent memory and trigger flag dump handler.
 
 ---
 
-## 📊 28-Module Quick Reference Matrix
+## 📊 Quick Summary Matrix (Modules 01–28)
 
-| # | Challenge Name | Primary Tool / Command | Category |
+| # | Challenge | Primary Tool / Technique | Category |
 | --- | --- | --- | --- |
-| 01 | Obedient Cat | `cat flag` | General Skills |
-| 02 | Python Wrangling | `python3 ende.py -d flag.txt.en` | Scripting |
-| 03 | Wave a Flag | `./binary -h` | CLI |
-| 04 | Nice Netcat... | `nc` + Python `chr()` | Data Representation |
-| 05 | Static Ain't Always Noise | `strings static | grep pico` | Binaries |
-| 06 | Tab, Tab, Attack | `cd folder[TAB]/` | CLI |
-| 07 | Magikarp Ground Mission | `cat`, `cd ..`, `ls -la` | Web/Linux |
-| 08 | Let's Warm Up | `printf "\x<hex>"` | Crypto |
-| 09 | Warmed Up | `python3 -c 'print(int("0x...", 16))'` | Math |
-| 10 | 2Warm | `python3 -c 'print(bin(42))'` | Math |
-| 11 | What's a Netcat? | `nc <host> <port>` | Networks |
-| 12 | Strings It | `strings file | grep "pico"` | Binaries |
-| 13 | Bases | `echo <base64> | base64 -d` | Crypto |
-| 14 | First Grep | `grep "picoCTF" file` | Search |
-| 15 | Codebook | `python3 codebook.py` | Scripting |
-| 16 | convertme.py | Interactive base conversion | Scripting |
-| 17 | fixme1.py | Fix Python indentation | Scripting |
-| 18 | fixme2.py | Fix `=` to `==` inside `if` statement | Scripting |
-| 19 | Glitch Cat | `python3 -c 'print(...)'` | Scripting |
-| 20 | HashingJobApp | `echo -n "str" | md5sum` | Crypto |
-| 21 | PW Crack 1 | `nano level1.py` (read string) | Forensics |
-| 22 | PW Crack 2 | Decode hex array in Python | Forensics |
-| 23 | PW Crack 3 | Match hardcoded hash array | Scripting |
-| 24 | PW Crack 4 | Loop through password array | Scripting |
-| 25 | PW Crack 5 | Dictionary attack script | Scripting |
-| 26 | Inspect HTML/CSS/JS | Browser DevTools (`F12`) | Web Exploitation |
-| 27 | Vault-Door Training | Inspect Java `checkPassword()` | Reverse Eng |
-| 28 | Buffer Overflow 0 | `python3 -c 'print("A"*100)' | nc` | Binary Exploitation |
+| 01 | Obedient Cat | `cat` | General Skills |
+| 02 | Python Wrangling | `python3` CLI arguments | Scripting |
+| 03 | Wave a Flag | Flag parameters (`-h`) | Binaries |
+| 04 | Nice Netcat... | `nc` + Python `chr()` conversion | Data |
+| 05 | Static Ain't Always Noise | `strings` | Binaries |
+| 06 | Tab, Tab, Attack | Tab auto-completion | Linux CLI |
+| 07 | Magikarp Ground Mission | Path traversal (`cd`, `ls -la`) | Linux CLI |
+| 08 | Let's Warm Up | Hex to ASCII (`printf`) | Cryptography |
+| 09 | Warmed Up | Hex to Dec (`int()`) | Math |
+| 10 | 2Warm | Dec to Binary (`bin()`) | Math |
+| 11 | What's a Netcat? | `nc` socket connection | Networking |
+| 12 | Strings It | `strings | grep` pipeline | Binaries |
+| 13 | Bases | `base64 -d` | Cryptography |
+| 14 | First Grep | `grep` text matching | File Search |
+| 15 | Codebook | Relative file dependencies | Python |
+| 16 | convertme.py | Interactive base conversion | Python |
+| 17 | fixme1.py | Fix Python indentation | Python Syntax |
+| 18 | fixme2.py | Fix Python logical operators | Python Syntax |
+| 19 | Glitch Cat | Dynamic Python string evaluation | Python |
+| 20 | HashingJobApp | Terminal `md5sum` pipeline | Cryptography |
+| 21 | PW Crack 1 | Plaintext hardcoded source audit | Forensics |
+| 22 | PW Crack 2 | Hex character code array parsing | Forensics |
+| 23 | PW Crack 3 | Array iteration modification | Scripting |
+| 24 | PW Crack 4 | Loop bruteforce over array | Scripting |
+| 25 | PW Crack 5 | Dictionary file line parsing | Scripting |
+| 26 | Inspect HTML/CSS/JS | Browser DevTools / multi-asset scraping | Web Exploitation |
+| 27 | Vault-Door Training | Decompiled Java source inspection | Reverse Engineering |
+| 28 | Buffer Overflow 0 | Stack buffer overflow payload (`"A"*100`) | Binary Exploitation |
 
 ```
 
