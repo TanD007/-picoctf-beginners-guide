@@ -179,7 +179,7 @@ print(s.recv(1024).decode())
 * **Category:** General Skills / File Search
 * **Problem:** Locate the flag pattern inside a large text file `file`.
 * **Method 1 (Grep Search):** `grep "picoCTF" file`
-* **Method 2 (Python Regex):** `python3 -c 'import re; print(re.findall("picoCTF{.*?}", open("file").read()))'`
+* **Method 2 (Python Regex):** `python3 -c 'import re; print(re.findall("picoCTF{.*?}", open("file").read()))' OR  python3 -c 'import re, sys; print(re.search(r"picoCTF\{.*?\}", open(sys.argv[1], errors="ignore").read()).group(0))' file`
 * **Gotcha:** Use `-i` flag for case-insensitive matches if unsure of flag case.
 
 ---
