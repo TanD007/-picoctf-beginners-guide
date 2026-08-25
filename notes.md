@@ -417,7 +417,30 @@ python3 -c 'print("A"*100)' | nc saturn.picoctf.net 51234
 
 ---
 
-## 📊 Quick Summary Matrix (Modules 01–28)
+###Module 29: Robots.txt & Web Directory Discovery
+
+* **Category:** Web Exploitation
+* **Problem:** Hidden pages, administrative portals, or flags buried in endpoints not linked directly on the main page.
+* **Method 1 (Standard Web Paths):** Append `/robots.txt` or `/sitemap.xml` directly to the website URL in your browser address bar.
+* **Method 2 (Terminal cURL):**
+```bash
+curl -s http://<host>:<port>/robots.txt
+
+```
+
+* **Method 3 (Automated Directory Brute-Forcing):**
+
+```bash
+gobuster dir -u http://<host>:<port>/ -w /usr/share/wordlists/dirb/common.txt
+
+```
+
+* **Gotcha:** Look for `Disallow:` paths inside `robots.txt`. Navigate to the exact file path listed after `Disallow:` (e.g., `http://<host>:<port>/14707.html`) to view the flag.
+
+
+---
+
+## 📊 Quick Summary Matrix (Modules 01–29)
 
 | # | Challenge | Primary Tool / Technique | Category |
 | --- | --- | --- | --- |
@@ -449,5 +472,6 @@ python3 -c 'print("A"*100)' | nc saturn.picoctf.net 51234
 | 26 | Inspect HTML/CSS/JS | Browser DevTools / multi-asset scraping | Web Exploitation |
 | 27 | Vault-Door Training | Decompiled Java source inspection | Reverse Engineering |
 | 28 | Buffer Overflow 0 | Stack buffer overflow payload (`"A"*100`) | Binary Exploitation |
+| 29 | Web Directory Discovery | `/robots.txt` / `gobuster` | Web Exploitation |
 
 ---
